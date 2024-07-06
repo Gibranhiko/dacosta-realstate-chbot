@@ -1,0 +1,7 @@
+bot_sessions
+node_modules
+.env
+bot.qr.png
+mw-chatbot*.json
+*.class.log
+*.log
