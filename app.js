@@ -1,79 +1,66 @@
-const { createBot, createProvider, createFlow, addKeyword } = require('@bot-whatsapp/bot')
-
-const QRPortalWeb = require('@bot-whatsapp/portal')
-const BaileysProvider = require('@bot-whatsapp/provider/baileys')
-const MockAdapter = require('@bot-whatsapp/database/mock')
-
-const flowSecundario = addKeyword(['2', 'siguiente']).addAnswer(['📄 Aquí tenemos el flujo secundario'])
-
-const flowDocs = addKeyword(['doc', 'documentacion', 'documentación']).addAnswer(
-    [
-        '📄 Aquí encontras las documentación recuerda que puedes mejorarla',
-        'https://bot-whatsapp.netlify.app/',
-        '\n*2* Para siguiente paso.',
-    ],
-    null,
-    null,
-    [flowSecundario]
-)
-
-const flowTuto = addKeyword(['tutorial', 'tuto']).addAnswer(
-    [
-        '🙌 Aquí encontras un ejemplo rapido',
-        'https://bot-whatsapp.netlify.app/docs/example/',
-        '\n*2* Para siguiente paso.',
-    ],
-    null,
-    null,
-    [flowSecundario]
-)
-
-const flowGracias = addKeyword(['gracias', 'grac']).addAnswer(
-    [
-        '🚀 Puedes aportar tu granito de arena a este proyecto',
-        '[*opencollective*] https://opencollective.com/bot-whatsapp',
-        '[*buymeacoffee*] https://www.buymeacoffee.com/leifermendez',
-        '[*patreon*] https://www.patreon.com/leifermendez',
-        '\n*2* Para siguiente paso.',
-    ],
-    null,
-    null,
-    [flowSecundario]
-)
-
-const flowDiscord = addKeyword(['discord']).addAnswer(
-    ['🤪 Únete al discord', 'https://link.codigoencasa.com/DISCORD', '\n*2* Para siguiente paso.'],
-    null,
-    null,
-    [flowSecundario]
-)
-
-const flowPrincipal = addKeyword(['hola', 'ole', 'alo'])
-    .addAnswer('🙌 Hola bienvenido a este *Chatbot*')
-    .addAnswer(
-        [
-            'te comparto los siguientes links de interes sobre el proyecto',
-            '👉 *doc* para ver la documentación',
-            '👉 *gracias*  para ver la lista de videos',
-            '👉 *discord* unirte al discord',
-        ],
-        null,
-        null,
-        [flowDocs, flowGracias, flowTuto, flowDiscord]
-    )
-
-const main = async () => {
-    const adapterDB = new MockAdapter()
-    const adapterFlow = createFlow([flowPrincipal])
-    const adapterProvider = createProvider(BaileysProvider)
-
+const {
+    createBot,
+    createProvider,
+    createFlow,
+    addKeyword,
+    EVENTS,
+  } = require("@bot-whatsapp/bot");
+  
+  const QRPortalWeb = require("@bot-whatsapp/portal");
+  const BaileysProvider = require("@bot-whatsapp/provider/baileys");
+  const MockAdapter = require("@bot-whatsapp/database/mock");
+  
+  const { welcomeFlow } = require("./flows/welcome.flow");
+  const { buyFlow } = require("./flows/buy.flow");
+  const { creditFlow } = require("./flows/credit.flow");
+  
+  function containsKeyword(keywordsArr, bodyText) {
+    return keywordsArr.some((keyword) => bodyText.includes(keyword));
+  }
+  
+  const flowStart = addKeyword(EVENTS.WELCOME).addAction(async (ctx, ctxFn) => {
+    const bodyText = ctx.body.toLowerCase();
+  
+    const keywordsWelcome = ["hola", "ola", "alo", "hello", "olis", "ola", "menu"];
+    const containsKeywordWelcome = containsKeyword(keywordsWelcome, bodyText);
+  
+    const keywordsBuy = ["1", "comprar"];
+    const containsKeywordBuy = containsKeyword(keywordsBuy, bodyText);
+  
+    const keywordsCredit = ["2", "credito"];
+    const containsKeyworCredit = containsKeyword(keywordsCredit, bodyText);
+  
+    if (containsKeywordWelcome && ctx.body.length < 8) {
+      return await ctxFn.gotoFlow(welcomeFlow);
+    }
+  
+    if (containsKeywordBuy) {
+      return ctxFn.gotoFlow(buyFlow);
+    } else if (containsKeyworCredit) {
+      return await ctxFn.gotoFlow(creditFlow);
+    } else {
+      return await ctxFn.endFlow("Disculpa, no entiendo tu solicitud, escribe *menu* para más opciones.")
+    }
+  });
+  
+  const main = async () => {
+    const adapterDB = new MockAdapter();
+    const adapterFlow = createFlow([
+      flowStart,
+      welcomeFlow,
+      buyFlow,
+      creditFlow
+    ]);
+    const adapterProvider = createProvider(BaileysProvider);
+  
     createBot({
-        flow: adapterFlow,
-        provider: adapterProvider,
-        database: adapterDB,
-    })
-
-    QRPortalWeb()
-}
-
-main()
+      flow: adapterFlow,
+      provider: adapterProvider,
+      database: adapterDB,
+    });
+  
+    QRPortalWeb();
+  };
+  
+  main();
+  

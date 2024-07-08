@@ -2,6 +2,6 @@ bot_sessions
 node_modules
 .env
 bot.qr.png
-mw-chatbot*.json
+dacosta*.json
 *.class.log
 *.log
