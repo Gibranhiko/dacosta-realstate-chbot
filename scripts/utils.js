@@ -61,16 +61,40 @@ function removeDuplicatesAndJoin(data) {
     return result;
 }
 
-function filterAndFormatByZone(data, zone) {
-    console.log(data, zone);
-    let filteredData = data.filter(item => item[1] === zone);
-    console.log(filteredData);
-
-    let formattedString = filteredData.map(item => {
-        return `${item[0]} en ${item[1]}, Fraccionamiento ${item[2]}, número ${item[3]}`;
-    }).join('\n');
-    
-    return formattedString;
+function formatToArrayOfObjects(data) {
+    const keys = data[0];
+    const result = data.slice(1).map(item => {
+        let obj = {};
+        item.forEach((value, index) => {
+            obj[keys[index]] = value;
+        });
+        return obj;
+    });
+    return result;
 }
 
-module.exports = {removeDuplicatesAndJoin, filterAndFormatByZone}
+
+function filterAndFormatByZone(properties, zone) {
+    const formattedProps = formatToArrayOfObjects(properties);
+    let normalizedZone = replaceAccentedCharacters(zone);
+
+    let filteredData = formattedProps.filter(item => replaceAccentedCharacters(item.Zona) === normalizedZone);
+
+    let result = filteredData.map(item => {
+        return {
+            body: `${item.Propiedad} en ${item.Zona}, Fraccionamiento ${item.Fraccionamiento}, número ${item.Numero}`,
+            media: item.Imagen,
+            delay: 500
+        };
+    });
+
+    return result;
+}
+
+const replaceAccentedCharacters = (str) => {
+    return str.toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+}
+
+module.exports = { removeDuplicatesAndJoin, filterAndFormatByZone, replaceAccentedCharacters }

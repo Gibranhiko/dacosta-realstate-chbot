@@ -21,7 +21,7 @@ const {
   const flowStart = addKeyword(EVENTS.WELCOME).addAction(async (ctx, ctxFn) => {
     const bodyText = ctx.body.toLowerCase();
   
-    const keywordsWelcome = ["hola", "ola", "alo", "hello", "olis", "ola", "menu"];
+    const keywordsWelcome = ["hola", "ola", "alo", "hello", "olis", "menu"];
     const containsKeywordWelcome = containsKeyword(keywordsWelcome, bodyText);
   
     const keywordsBuy = ["1", "comprar"];
