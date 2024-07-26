@@ -1,9 +1,10 @@
 const { google } = require("googleapis");
 
 const googleCalendarId = process.env.GOOGLE_CALENDAR_ID;
+const googleKeyFile = process.env.GOOGLE_KEY_FILE;
 
 const auth = new google.auth.GoogleAuth({
-  keyFile: "./mw-chatbot-426817-3902ebe1254e.json",
+  keyFile: `./${googleKeyFile}`,
   scopes: ["https://www.googleapis.com/auth/calendar"],
 });
 

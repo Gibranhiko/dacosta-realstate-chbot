@@ -13,6 +13,9 @@ const {
   const { welcomeFlow } = require("./flows/welcome.flow");
   const { buyFlow } = require("./flows/buy.flow");
   const { creditFlow } = require("./flows/credit.flow");
+  const { bookingFlow } = require("./flows/booking.flow");
+const { confirmationFlow } = require("./flows/confirmation.flow");
+const { formFlow } = require("./flows/form.flow");
   
   function containsKeyword(keywordsArr, bodyText) {
     return keywordsArr.some((keyword) => bodyText.includes(keyword));
@@ -49,7 +52,10 @@ const {
       flowStart,
       welcomeFlow,
       buyFlow,
-      creditFlow
+      creditFlow,
+      bookingFlow,
+      confirmationFlow,
+      formFlow
     ]);
     const adapterProvider = createProvider(BaileysProvider);
   
